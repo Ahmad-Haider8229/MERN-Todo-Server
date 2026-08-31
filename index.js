@@ -1,59 +1,28 @@
-const express = require("express");
-const cors = require("cors");
+const express = require("express")
+const cors = require("cors")
 require('dotenv').config();
-
-const app = express();
-const { connectDB } = require("./config/db");
+const app = express()
+const {connectDB} = require("./config/db")
 const authRoutes = require("./routes/auth");
-const todos = require("./routes/todo");
+const todos = require("./routes/todo")
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 
-// Routes
-app.get("/", (req, res) => {
-  res.json({ 
-    message: "Server is running",
-    status: "OK"
-  });
-});
-
+app.use(express.json())
+app.use(cors())
 app.use("/auth", authRoutes);
 app.use("/todo", todos);
+app.use(express.urlencoded({ extended: true }));
+connectDB()
 
-// Error handling
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found"
-  });
-});
+const PORT = process.env.PORT || 8000;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-app.use((err, req, res, next) => {
-  console.error('Error:', err.message);
-  res.status(500).json({
-    success: false,
-    message: "Internal server error"
-  });
-});
+console.log('Server running on port:', PORT);
+console.log('Environment:', process.env.NODE_ENV);
 
-// ✅ Connect to database
-connectDB();
+app.get("/",(req,res) => {
 
-// ============================================
-// ✅ CRITICAL FIX: Export for Vercel
-// ============================================
-module.exports = app;
+res.send("Server ")
+})
 
-// ============================================
-// Only listen locally, NOT on Vercel
-// ============================================
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 8000;
-  app.listen(PORT, () => {
-    console.log(`✅ Server running on http://localhost:${PORT}`);
-    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
-  });
-}
+module.exports = app
